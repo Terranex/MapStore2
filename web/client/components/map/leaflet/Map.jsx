@@ -42,7 +42,8 @@ class LeafletMap extends React.Component {
         registerHooks: PropTypes.bool,
         interactive: PropTypes.bool,
         resolutions: PropTypes.array,
-        onCreationError: PropTypes.func
+        onCreationError: PropTypes.func,
+        useWindyty: PropTypes.bool,
     };
 
     static defaultProps = {
@@ -64,7 +65,8 @@ class LeafletMap extends React.Component {
         registerHooks: true,
         style: {},
         interactive: true,
-        resolutions: mapUtils.getGoogleMercatorResolutions(0, 23)
+        resolutions: mapUtils.getGoogleMercatorResolutions(0, 23),
+        useWindyty: true,
     };
 
     state = { };
@@ -84,21 +86,75 @@ class LeafletMap extends React.Component {
     }
 
     componentDidMount() {
-        let mapOptions = assign({}, this.props.interactive ? {} : {
-            dragging: false,
-            touchZoom: false,
-            scrollWheelZoom: false,
-            doubleClickZoom: false,
-            boxZoom: false,
-            tap: false,
-            attributionControl: false
-        }, {maxZoom: 23}, this.props.mapOptions, this.crs ? {crs: this.crs} : {});
 
-        const map = L.map(this.props.id, assign({zoomControl: this.props.zoomControl}, mapOptions) ).setView([this.props.center.y, this.props.center.x],
-          Math.round(this.props.zoom));
+        if (this.props.useWindyty) {
+
+            console.log("Map is Windyty");     
+            const mapReadyCallback = this.mapReady.bind(this);
+            window.windytyMain = function (map) {
+                window.wmap = map;
+                W.setOverlay('clouds');
+                W.overlays.clouds.setMetric('mm');
+                var windytyDiv = document.querySelector('#windyty');
+                var windytymapDiv = document.querySelector('#map');
+                windytymapDiv.appendChild(windytyDiv);
+                mapReadyCallback(map);
+            };
+            window.windytyInit = {
+                key : 'PsL-At-XpsPTZexBwUkO7Mx5I',
+                lat : -25,
+                lon : 25,
+                zoom: 5,
+                overlay: 'temp',
+            };
+            var link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = "/windyty.css";
+            document.head.appendChild(link);
+            var script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = "/bootWindyty.js";
+            script.async = false;
+            script.defer = false;
+            script.onload = onload || function() {
+                console.log("Windyty booting...");     
+            };
+            script.onerror = function() {
+                console.error("Failed to boot Windyty.");
+            };
+            document.head.appendChild(script);
+
+        } else {
+
+            console.log("Map is standard Leaflet");     
+            const map = L.map(this.props.id, assign({zoomControl: this.props.zoomControl}));
+            this.mapReady(map);
+            
+        }
+
+    }
+
+    mapReady(map) {
 
         this.map = map;
 
+        let mapOptions = assign({}, 
+            this.props.interactive ? {} : {
+                dragging: false,
+                touchZoom: false,
+                scrollWheelZoom: false,
+                doubleClickZoom: false,
+                boxZoom: false,
+                tap: false,
+                attributionControl: false
+            }, 
+            {maxZoom: 23}, 
+            this.props.mapOptions, 
+            this.crs ? {crs: this.crs} : {},
+        );
+
+        this.map.setOptions(mapOptions);
+        this.map.setView([this.props.center.y, this.props.center.x], Math.round(this.props.zoom));
 
         this.attribution = L.control.attribution();
         this.attribution.addTo(this.map);
