@@ -109,11 +109,11 @@ class LeafletMap extends React.Component {
             };
             var link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = "windyty/windyty.css";
+            link.href = "/windyty/windyty.css";
             document.head.appendChild(link);
             var script = document.createElement("script");
             script.type = "text/javascript";
-            script.src = "windyty/windyty_boot.js";
+            script.src = "/windyty/windyty_boot.js";
             script.async = false;
             script.defer = false;
             script.onload = onload || function() {
