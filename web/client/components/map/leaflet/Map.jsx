@@ -109,11 +109,11 @@ class LeafletMap extends React.Component {
             };
             var link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = "/windyty.css";
+            link.href = "windyty/windyty.css";
             document.head.appendChild(link);
             var script = document.createElement("script");
             script.type = "text/javascript";
-            script.src = "/bootWindyty.js";
+            script.src = "windyty/windyty_boot.js";
             script.async = false;
             script.defer = false;
             script.onload = onload || function() {
@@ -153,7 +153,12 @@ class LeafletMap extends React.Component {
             this.crs ? {crs: this.crs} : {},
         );
 
-        this.map.setOptions(mapOptions);
+        for (var option in mapOptions) {
+            if (mapOptions.hasOwnProperty(option)) {
+                this.map.options[option] = mapOptions[option];
+            }
+        };
+
         this.map.setView([this.props.center.y, this.props.center.x], Math.round(this.props.zoom));
 
         this.attribution = L.control.attribution();
@@ -291,6 +296,9 @@ class LeafletMap extends React.Component {
             attributionContainer.removeChild(this.attribution.getContainer());
         }
         this.map.remove();
+        var w = document.createElement('div');
+        w.setAttribute('id', 'windyty');
+        document.body.appendChild(w);
     }
 
     getResolutions = () => {
