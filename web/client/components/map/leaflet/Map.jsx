@@ -13,6 +13,10 @@ var CoordinatesUtils = require('../../../utils/CoordinatesUtils');
 var assign = require('object-assign');
 var mapUtils = require('../../../utils/MapUtils');
 const Rx = require('rxjs');
+const StandardApp = require('../../../components/app/StandardApp');
+
+const {connect} = require('react-redux');
+const {changeGroupProperties} = require('../../../actions/layers');
 
 const {throttle} = require('lodash');
 
@@ -91,12 +95,13 @@ class LeafletMap extends React.Component {
 
             console.log("Map is Windyty");     
             const mapReadyCallback = this.mapReady.bind(this);
+            const mapId = this.props.id;
             window.windytyMain = function (map) {
                 window.wmap = map;
                 W.setOverlay('clouds');
                 W.overlays.clouds.setMetric('mm');
                 var windytyDiv = document.querySelector('#windyty');
-                var windytymapDiv = document.querySelector('#map');
+                var windytymapDiv = document.querySelector('#' + mapId);
                 windytymapDiv.appendChild(windytyDiv);
                 mapReadyCallback(map);
             };
@@ -123,6 +128,7 @@ class LeafletMap extends React.Component {
                 console.error("Failed to boot Windyty.");
             };
             document.head.appendChild(script);
+            this.props.dispatch(changeGroupProperties('background', {'visibility': false}));
 
         } else {
 
@@ -478,4 +484,4 @@ class LeafletMap extends React.Component {
     };
 }
 
-module.exports = LeafletMap;
+module.exports = connect()(LeafletMap);
