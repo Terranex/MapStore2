@@ -184,8 +184,7 @@
               }
             }
         ],
-
-        "desktop": [
+        "desktop": [ "Details",
           {
             "name": "Map",
             "cfg": {
@@ -260,6 +259,7 @@
                 "name": "TOC",
                 "cfg": {
                     "activateQueryTool": true,
+                    "activateDownloadTool": true,
                     "activateAddLayerButton": true,
                     "spatialOperations": [
                         {"id": "INTERSECTS", "name": "queryform.spatialfilter.operations.intersects"},
